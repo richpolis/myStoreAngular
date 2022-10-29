@@ -1,0 +1,8 @@
+
+<app-img [img]="product?.image" [alt]="product?.title +' logo'"></app-img>
+<h2>{{product?.price | currency:'USD' }}</h2>
+<p data-id="{{product?.id}}">{{product?.title}}</p>
+<p appHighlight>
+    {{product?.description}}
+</p>
+<button (click)="onAddProductToCard()">Add cart</button>
