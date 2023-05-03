@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CreateProduct, Product } from 'src/app/models/product.model';
+import { CreateProductDTO, Product, UpdateProductDTO } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products.service';
 import { StoreService } from 'src/app/services/store.service';
 
@@ -61,7 +61,7 @@ export class ProductsComponent implements OnInit {
   }
 
   createProduct(): void {
-    const body: CreateProduct = {
+    const body: CreateProductDTO = {
       title: 'Nuevo producto',
       price: 100,
       description: 'Descripción del producto',
@@ -74,6 +74,29 @@ export class ProductsComponent implements OnInit {
           // Guardamos el nuevo producto, en el Array de productos junto con los otros.
           this.products.push(p);
       });
+  }
+
+  updateProduct() {
+    const changes: UpdateProductDTO = {
+      title: 'change title',
+    }
+    const productId = this.productChosen.id;
+    this.productsService.updateProduct(productId, changes)
+    .subscribe(data => {
+      const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
+      this.products[productIndex] = data;
+      this.productChosen = data;
+    });
+  }
+
+  deleteProduct() {
+    const productId = this.productChosen.id;
+    this.productsService.deleteProduct(productId)
+    .subscribe(() => {
+      const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
+      this.products.splice(productIndex, 1);
+      this.showProductDetail = false;
+    });
   }
 
 
