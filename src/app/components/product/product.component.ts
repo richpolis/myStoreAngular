@@ -9,9 +9,20 @@ import { Product } from 'src/app/models/product.model';
 })
 export class ProductComponent implements OnInit {
 
-  @Input() product: Product | null = null;
+  @Input() product: Product = {
+    id: 0,
+    price: 0,
+    images: [],
+    title: '',
+    category: {
+      id: 0,
+      name: '',
+    },
+    description: ''
+  };;
 
   @Output() addToCart = new EventEmitter<Product>();
+  @Output() showProduct = new EventEmitter<number>();
 
   constructor() { }
 
@@ -21,15 +32,22 @@ export class ProductComponent implements OnInit {
         id: 0, 
         title: '', 
         price: 0, 
-        image: ''
+        images: [],
+        description: '', 
+        category: {
+          id: 0,
+          name: ''
+        } 
       }
     }
   }
 
   onAddProductToCard(){
-    if(this.product){
-      this.addToCart.emit(this.product);
-    }
+    this.addToCart.emit(this.product);
+  }
+
+  onShowDetail() {
+    this.showProduct.emit(this.product.id);
   }
 
 }

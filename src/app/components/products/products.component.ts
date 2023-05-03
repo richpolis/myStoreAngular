@@ -13,6 +13,7 @@ export class ProductsComponent implements OnInit {
   total = 0;
 
   products: Product[] = [];
+  showProductDetail = false;
   
   constructor(
     private storeService: StoreService, 
@@ -25,7 +26,7 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit(): void {
     // async
-    this.productsService.getAll().subscribe(res => {
+    this.productsService.getProducts().subscribe(res => {
       this.products = res;
     });
   }
@@ -34,7 +35,18 @@ export class ProductsComponent implements OnInit {
     console.log(product.title, " agregado");
     this.storeService.addProductToShoppingCart(product);
     this.total = this.storeService.getTotal();
-
   }
+
+  toggleProductDetail() {
+    this.showProductDetail = !this.showProductDetail;
+  }
+
+  onShowDetail(id: number) {
+    this.productsService.getProduct(id)
+    .subscribe(data => {
+      console.log('product', data);
+    })
+  }
+
 
 }
