@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Product } from '../models/product.model';
+import { CreateProduct, Product } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,5 +16,9 @@ export class ProductsService {
   
   getProduct(id:number){
     return this.http.get<Product>(`https://young-sands-07814.herokuapp.com/api/products/${id}`)
+  }
+
+  createProduct(body: CreateProduct) {
+    return this.http.post<Product>(`https://young-sands-07814.herokuapp.com/api/products/`, body);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Product } from 'src/app/models/product.model';
+import { CreateProduct, Product } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products.service';
 import { StoreService } from 'src/app/services/store.service';
 
@@ -14,6 +14,17 @@ export class ProductsComponent implements OnInit {
 
   products: Product[] = [];
   showProductDetail = false;
+  productChosen: Product = {
+    id: 0,
+    price: 0,
+    images: [],
+    title: '',
+    category: {
+      id: 0,
+      name: '',
+    },
+    description: ''
+  };
   
   constructor(
     private storeService: StoreService, 
@@ -44,8 +55,25 @@ export class ProductsComponent implements OnInit {
   onShowDetail(id: number) {
     this.productsService.getProduct(id)
     .subscribe(data => {
-      console.log('product', data);
+      this.toggleProductDetail();
+      this.productChosen = data;
     })
+  }
+
+  createProduct(): void {
+    const body: CreateProduct = {
+      title: 'Nuevo producto',
+      price: 100,
+      description: 'Descripción del producto',
+      images: ['https://placeimg.com/640/480/animals?r=0.0159000995422236', 
+              'https://placeimg.com/640/480/animals?r=0.0159000995422236'],
+      categoryId: 1
+    };
+    this.productsService.createProduct(body)
+      .subscribe((p: Product) => {
+          // Guardamos el nuevo producto, en el Array de productos junto con los otros.
+          this.products.push(p);
+      });
   }
 
 
