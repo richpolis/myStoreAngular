@@ -26,6 +26,9 @@ export class ProductsComponent implements OnInit {
     description: ''
   };
   
+  limit = 10;
+  offset = 0;
+  
   constructor(
     private storeService: StoreService, 
     private productsService: ProductsService
@@ -37,8 +40,10 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit(): void {
     // async
-    this.productsService.getProducts().subscribe(res => {
+    this.productsService.getProducts(10, 0)
+    .subscribe(res => {
       this.products = res;
+      this.offset += this.limit;
     });
   }
 
@@ -57,6 +62,8 @@ export class ProductsComponent implements OnInit {
     .subscribe(data => {
       this.toggleProductDetail();
       this.productChosen = data;
+    }, err => {
+      alert(err);  // Aquí se emitirá el alerta con el mensaje que `throwError` devuelva.
     })
   }
 
@@ -96,6 +103,14 @@ export class ProductsComponent implements OnInit {
       const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
       this.products.splice(productIndex, 1);
       this.showProductDetail = false;
+    });
+  }
+
+  loadMore() {
+    this.productsService.getProductsByPage(this.limit, this.offset)
+    .subscribe(data => {
+      this.products = this.products.concat(data);
+      this.offset += this.limit;
     });
   }
 

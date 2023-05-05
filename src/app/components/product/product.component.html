@@ -3,6 +3,7 @@
     [img]="product.images[0]" [alt]="product.title +' logo'"></app-img>
 <h2>{{product.price | currency:'USD' }}</h2>
 <p data-id="{{product.id}}">{{product?.title}}</p>
+<p>{{product?.taxes | currency:'USD'}}</p>
 <!-- <p appHighlight>
     {{product.description}}
 </p> -->
