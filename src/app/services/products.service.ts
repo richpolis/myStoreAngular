@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CreateProductDTO, Product, UpdateProductDTO } from '../models/product.model';
 import { environment } from 'src/environments/environment';
 import { retry, catchError, map } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, zip } from 'rxjs';
 
 
 @Injectable({
@@ -25,6 +25,13 @@ export class ProductsService {
       map(products => products.map(item => {
         return {...item, taxes: .19 * item.price}
       }))
+    );
+  }
+
+  fetchReadAndUpdate(id: number, dto: UpdateProductDTO) {
+    return zip(
+      this.getProduct(id),
+      this.updateProduct(id, dto)
     );
   }
 
