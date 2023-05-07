@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { UsersService } from './services/users.service';
+import { AuthService } from './services/auth.service';
 
 
 @Component({
@@ -9,12 +11,27 @@ import { Component } from '@angular/core';
 export class AppComponent {
 
   imgParent: string = "https://www.w3schools.com/howto/img_avatar.png";
+  showImg = true;
+  token = '';
 
-  constructor(){
-    
+  constructor(private usersService: UsersService, private authService: AuthService) {}
+
+  onLoaded(img: string) {
+    console.log('log padre', img);
   }
 
-  onLoaded(img: string){
-    console.log('notificacion al padre');
+  toggleImg() {
+    this.showImg = !this.showImg;
+  }
+
+  createUser() {
+    this.usersService.createUser({
+      name: 'Sebas',
+      email: 'sebas@mail.com',
+      password: '1212'
+    })
+    .subscribe(rta => {
+      console.log(rta);
+    });
   }
 }
