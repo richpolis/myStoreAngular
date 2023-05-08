@@ -1,13 +1,13 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
-    "analytics": "efd42d28-6556-40e6-9099-9e1d251f7d22",
+    "analytics": "28db627e-3dc6-44aa-9c03-c6c0b89b2d3b",
     "defaultCollection": "@angular-eslint/schematics"
   },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "my-store": {
+    "my-store-api": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -24,7 +24,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/my-store",
+            "outputPath": "dist/my-store-api",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -76,10 +76,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "my-store:build:production"
+              "browserTarget": "my-store-api:build:production"
             },
             "development": {
-              "browserTarget": "my-store:build:development"
+              "browserTarget": "my-store-api:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -87,7 +87,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "my-store:build"
+            "browserTarget": "my-store-api:build"
           }
         },
         "test": {
@@ -120,5 +120,5 @@
       }
     }
   },
-  "defaultProject": "my-store"
+  "defaultProject": "my-store-api"
 }

@@ -1,10 +1,11 @@
-import { HttpClient, HttpErrorResponse, HttpParams, HttpStatusCode } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CreateProductDTO, Product, UpdateProductDTO } from '../models/product.model';
-import { environment } from 'src/environments/environment';
+import { HttpClient, HttpParams, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { retry, catchError, map } from 'rxjs/operators';
-import { Observable, throwError, zip } from 'rxjs';
+import { throwError, zip } from 'rxjs';
 
+import { Product, CreateProductDTO, UpdateProductDTO } from './../models/product.model';
+
+import { environment } from './../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,78 +14,66 @@ export class ProductsService {
 
   private apiUrl = `${environment.API_URL}/api/products`;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient
+  ) { }
 
-  getProducts(limit:number = 10, offset:number = 0){
-    // return this.http.get<Product[]>('https://fakestoreapi.com/products')
+  getAllProducts(limit: number = 10, offset: number = 0) {
     let params = new HttpParams();
     params = params.set('limit', limit);
-    params = params.set('offset', offset);
-    return this.http.get<Product[]>(`${this.apiUrl}`, { params }).pipe(
-      retry(3), 
+    params = params.set('offset', limit);
+    return this.http.get<Product[]>(this.apiUrl, { params })
+    .pipe(
+      retry(3),
       map(products => products.map(item => {
-        return {...item, taxes: .19 * item.price}
+        return {
+          ...item,
+          taxes: .19 * item.price
+        }
       }))
     );
   }
 
-  fetchReadAndUpdate(id: number, dto: UpdateProductDTO) {
+  fetchReadAndUpdate(id: string, dto: UpdateProductDTO) {
     return zip(
       this.getProduct(id),
-      this.updateProduct(id, dto)
+      this.update(id, dto)
     );
+  }
+
+  getProduct(id: string) {
+    return this.http.get<Product>(`${this.apiUrl}/${id}`)
+    .pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === HttpStatusCode.Conflict) {
+          return throwError('Algo esta fallando en el server');
+        }
+        if (error.status === HttpStatusCode.NotFound) {
+          return throwError('El producto no existe');
+        }
+        if (error.status === HttpStatusCode.Unauthorized) {
+          return throwError('No estas permitido');
+        }
+        return throwError('Ups algo salio mal');
+      })
+    )
   }
 
   getProductsByPage(limit: number, offset: number) {
     return this.http.get<Product[]>(`${this.apiUrl}`, {
       params: { limit, offset }
-    }).pipe(
-      retry(3), 
-      map(products => products.map(item => {
-        return {...item, taxes: .19 * item.price}
-      }))
-    );
-  }
-  
-  getProduct(id:number){
-    return this.http.get<Product>(`${this.apiUrl}/${id}`).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.handleErrors(err)
-      })
-    );
+    })
   }
 
-  createProduct(body: CreateProductDTO) {
-    return this.http.post<Product>(`${this.apiUrl}`, body).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.handleErrors(err)
-      })
-    );
+  create(dto: CreateProductDTO) {
+    return this.http.post<Product>(this.apiUrl, dto);
   }
 
-  updateProduct(id: number, dto: UpdateProductDTO) {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, dto).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.handleErrors(err)
-      })
-    );
+  update(id: string, dto: UpdateProductDTO) {
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, dto);
   }
 
-  deleteProduct(id: number) {
-    return this.http.delete<boolean>(`${this.apiUrl}/${id}`).pipe(
-      catchError((err: HttpErrorResponse) => {
-        return this.handleErrors(err)
-      })
-    );
-  }
-
-  handleErrors(error: HttpErrorResponse): Observable<never>  {
-    if (error.status == HttpStatusCode.Forbidden)
-      return throwError('No tiene permisos para realizar la solicitud.');
-    if (error.status == HttpStatusCode.NotFound)
-      return throwError('El producto no existe.');
-    if (error.status == HttpStatusCode.InternalServerError)
-      return throwError('Error en el servidor.');
-    return throwError('Un error inesperado ha ocurrido.');
+  delete(id: string) {
+    return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
   }
 }

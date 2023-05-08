@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { zip } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { CreateProductDTO, Product, UpdateProductDTO } from 'src/app/models/product.model';
-import { ProductsService } from 'src/app/services/products.service';
-import { StoreService } from 'src/app/services/store.service';
+
+import { Product, CreateProductDTO, UpdateProductDTO } from '../../models/product.model';
+
+import { StoreService } from '../../services/store.service';
+import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-products',
@@ -10,48 +13,43 @@ import { StoreService } from 'src/app/services/store.service';
   styleUrls: ['./products.component.scss']
 })
 export class ProductsComponent implements OnInit {
+
   myShoppingCart: Product[] = [];
   total = 0;
-
   products: Product[] = [];
   showProductDetail = false;
   productChosen: Product = {
-    id: 0,
+    id: '',
     price: 0,
     images: [],
     title: '',
     category: {
-      id: 0,
+      id: '',
       name: '',
     },
     description: ''
   };
-  
   limit = 10;
   offset = 0;
   statusDetail: 'loading' | 'success' | 'error' | 'init' = 'init';
-  
+
   constructor(
-    private storeService: StoreService, 
+    private storeService: StoreService,
     private productsService: ProductsService
-  ) { 
-    // sync
+  ) {
     this.myShoppingCart = this.storeService.getShoppingCart();
-    this.total = this.storeService.getTotal();
   }
 
   ngOnInit(): void {
-    // async
-    this.productsService.getProducts(10, 0)
-    .subscribe(res => {
-      this.products = res;
+    this.productsService.getAllProducts(10, 0)
+    .subscribe(data => {
+      this.products = data;
       this.offset += this.limit;
     });
   }
 
-  onAddProductToShoppingCart(product: Product){
-    console.log(product.title, " agregado");
-    this.storeService.addProductToShoppingCart(product);
+  onAddToShoppingCart(product: Product) {
+    this.storeService.addProduct(product);
     this.total = this.storeService.getTotal();
   }
 
@@ -59,7 +57,7 @@ export class ProductsComponent implements OnInit {
     this.showProductDetail = !this.showProductDetail;
   }
 
-  onShowDetail(id: number) {
+  onShowDetail(id: string) {
     this.statusDetail = 'loading';
     this.toggleProductDetail();
     this.productsService.getProduct(id)
@@ -72,10 +70,10 @@ export class ProductsComponent implements OnInit {
     })
   }
 
-  readAndUpdate(id: number) {
+  readAndUpdate(id: string) {
     this.productsService.getProduct(id)
     .pipe(
-      switchMap((product) => this.productsService.updateProduct(product.id, {title: 'change'})),
+      switchMap((product) => this.productsService.update(product.id, {title: 'change'})),
     )
     .subscribe(data => {
       console.log(data);
@@ -87,28 +85,26 @@ export class ProductsComponent implements OnInit {
     })
   }
 
-  createProduct(): void {
-    const body: CreateProductDTO = {
-      title: 'Nuevo producto',
-      price: 100,
-      description: 'Descripción del producto',
-      images: ['https://placeimg.com/640/480/animals?r=0.0159000995422236', 
-              'https://placeimg.com/640/480/animals?r=0.0159000995422236'],
-      categoryId: 1
-    };
-    this.productsService.createProduct(body)
-      .subscribe((p: Product) => {
-          // Guardamos el nuevo producto, en el Array de productos junto con los otros.
-          this.products.push(p);
-      });
+  createNewProduct() {
+    const product: CreateProductDTO = {
+      title: 'Nuevo prodcuto',
+      description: 'bla bla bla',
+      images: [`https://placeimg.com/640/480/any?random=${Math.random()}`],
+      price: 1000,
+      categoryId: 2,
+    }
+    this.productsService.create(product)
+    .subscribe(data => {
+      this.products.unshift(data);
+    });
   }
 
   updateProduct() {
     const changes: UpdateProductDTO = {
       title: 'change title',
     }
-    const productId = this.productChosen.id;
-    this.productsService.updateProduct(productId, changes)
+    const id = this.productChosen.id;
+    this.productsService.update(id, changes)
     .subscribe(data => {
       const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
       this.products[productIndex] = data;
@@ -117,8 +113,8 @@ export class ProductsComponent implements OnInit {
   }
 
   deleteProduct() {
-    const productId = this.productChosen.id;
-    this.productsService.deleteProduct(productId)
+    const id = this.productChosen.id;
+    this.productsService.delete(id)
     .subscribe(() => {
       const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
       this.products.splice(productIndex, 1);
@@ -127,12 +123,11 @@ export class ProductsComponent implements OnInit {
   }
 
   loadMore() {
-    this.productsService.getProductsByPage(this.limit, this.offset)
+    this.productsService.getAllProducts(this.limit, this.offset)
     .subscribe(data => {
       this.products = this.products.concat(data);
       this.offset += this.limit;
     });
   }
-
 
 }

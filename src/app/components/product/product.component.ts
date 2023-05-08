@@ -1,49 +1,32 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { Product } from 'src/app/models/product.model';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
+import { Product } from '../../models/product.model';
 
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.scss']
 })
-export class ProductComponent implements OnInit {
+export class ProductComponent {
 
   @Input() product: Product = {
-    id: 0,
+    id: '',
     price: 0,
     images: [],
     title: '',
     category: {
-      id: 0,
+      id: '',
       name: '',
     },
     description: ''
-  };;
-
-  @Output() addToCart = new EventEmitter<Product>();
-  @Output() showProduct = new EventEmitter<number>();
+  };
+  @Output() addedProduct = new EventEmitter<Product>();
+  @Output() showProduct = new EventEmitter<string>();
 
   constructor() { }
 
-  ngOnInit(): void {
-    if(this.product === null){
-      this.product = {
-        id: 0, 
-        title: '', 
-        price: 0, 
-        images: [],
-        description: '', 
-        category: {
-          id: 0,
-          name: ''
-        } 
-      }
-    }
-  }
-
-  onAddProductToCard(){
-    this.addToCart.emit(this.product);
+  onAddToCart() {
+    this.addedProduct.emit(this.product);
   }
 
   onShowDetail() {

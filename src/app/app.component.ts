@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { UsersService } from './services/users.service';
-import { AuthService } from './services/auth.service';
 
+import { UsersService } from './services/users.service';
 
 @Component({
   selector: 'app-root',
@@ -9,12 +8,16 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-
-  imgParent: string = "https://www.w3schools.com/howto/img_avatar.png";
+  imgParent = '';
   showImg = true;
   token = '';
 
-  constructor(private usersService: UsersService, private authService: AuthService) {}
+  constructor(
+    private usersService: UsersService
+  ) {
+
+  }
+
 
   onLoaded(img: string) {
     console.log('log padre', img);
@@ -25,7 +28,7 @@ export class AppComponent {
   }
 
   createUser() {
-    this.usersService.createUser({
+    this.usersService.create({
       name: 'Sebas',
       email: 'sebas@mail.com',
       password: '1212'
