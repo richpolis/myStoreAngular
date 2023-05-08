@@ -18,10 +18,12 @@ export class ProductsService {
     private http: HttpClient
   ) { }
 
-  getAllProducts(limit: number = 10, offset: number = 0) {
+  getAllProducts(limit?: number, offset?: number) {
     let params = new HttpParams();
-    params = params.set('limit', limit);
-    params = params.set('offset', limit);
+    if (limit && offset) {
+      params = params.set('limit', limit);
+      params = params.set('offset', limit);
+    }
     return this.http.get<Product[]>(this.apiUrl, { params, context: checkTime() })
     .pipe(
       retry(3),
